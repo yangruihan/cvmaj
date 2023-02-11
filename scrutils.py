@@ -188,7 +188,7 @@ def getGoodMatches(des1, des2, thr = 0.6):
 # match and delete bad points in loop
 def adaptiveMatchFitST_uni(kp1, des1, kp2, des2):
     matches = g_flann.knnMatch(des1, des2, k=2)
-    matches.sort(key=lambda m:m[0].distance)
+    matches = sorted(matches, key=lambda m:m[0].distance)
     binSize = 500
     binSizeMin = 400
     

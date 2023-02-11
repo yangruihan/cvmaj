@@ -164,8 +164,8 @@ def train(train_loader, model, criterion, optimizer, epoch):
         data_time.update(time.time() - end)
 
         if args.cpu == False:
-            input = input.cuda(async=True)
-            target = target.cuda(async=True)
+            input = input.cuda(non_blocking=True)
+            target = target.cuda(non_blocking=True)
         if args.half:
             input = input.half()
 
@@ -213,8 +213,8 @@ def validate(val_loader, model, criterion):
     end = time.time()
     for i, (input, target) in enumerate(val_loader):
         if args.cpu == False:
-            input = input.cuda(async=True)
-            target = target.cuda(async=True)
+            input = input.cuda(non_blocking=True)
+            target = target.cuda(non_blocking=True)
 
         if args.half:
             input = input.half()
@@ -297,7 +297,11 @@ def accuracy(output, target, topk=(1,)):
 
 # 返回预测函数 (预测函数：传入图像list，返回名称list)
 def loadModel(path):
-    state_dict = torch.load(path)['state_dict']
+    if not torch.cuda.is_available():
+        state_dict = torch.load(path, map_location=torch.device('cpu'))['state_dict']
+    else:
+        state_dict = torch.load(path)['state_dict']
+
     model = models.ConvClassifier()
     model.load_state_dict(state_dict)
     model.cpu()
